@@ -69,6 +69,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	LPCSTR szMsg1 = "I love Window Programming";
 	LPCSTR szMsg2 = "키보드가 눌러졌습니다.";
 	LPCSTR szMsg3 = "키보드가 떼어졌습니다.";
+	LPSTR szMsg4 = new char[10];
+
+	// 좌표를 표시하는 구조체 POINT
+	POINT mousePoint;
 
 	// 1. 커널에서 들어온 메시지를 Switch문을 이용해 처리
 	switch (message)
@@ -78,12 +82,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_PAINT:
 		hdc = BeginPaint(hwnd, &ps);
+		// 위치를 정해서 출력하는 TextOut
 		TextOut(hdc, 10, 10, szMsg1, strlen(szMsg1));
 		EndPaint(hwnd, &ps);
 		break;
 
 	case WM_KEYDOWN:
 		hdc = GetDC(hwnd);
+		// 영역을 정하고 그에 맞춰 출력하는 DrawOut
 		GetClientRect(hwnd, &rect);
 		DrawText(hdc, szMsg2, strlen(szMsg2), &rect, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 		ReleaseDC(hwnd, hdc);
@@ -98,6 +104,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_MBUTTONDBLCLK:
 		MessageBox(hwnd, "마우스 더블클릭 ~", "마우스 메시지", MB_OK | MB_ICONASTERISK);
+		
+		break;
+
+	case WM_LBUTTONDOWN:
+		hdc = GetDC(hwnd);
+		// x좌표는 LOWORD 매크로, y좌표는 HIWORD 매크로로 흭득 가능
+		mousePoint.x = LOWORD(lParam);
+		mousePoint.y = HIWORD(lParam);
+
+		// szMsg4에 메시지 기록
+		wsprintf(szMsg4, " X:%ld, Y:%ld", mousePoint.x, mousePoint.y);
+
+		// 메시지 출력
+		TextOut(hdc, mousePoint.x, mousePoint.y, szMsg4, strlen(szMsg4));
+
+		ReleaseDC(hwnd, hdc);
 		break;
 
 	case WM_DESTROY:
